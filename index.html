@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pagamento de FARM</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f0f2f5; /* Cor de fundo suave */
+            color: #333; /* Cor de texto padrão */
+            font-family: 'Arial', sans-serif; /* Fonte moderna */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            max-width: 600px;
+            background-color: #ffffff; /* Cor de fundo do conteúdo */
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Sombra para destaque */
+            margin: 20px; /* Margem para evitar que encoste nas bordas da tela */
+        }
+        .form-check-input {
+            width: 2.5em;
+            height: 2.5em;
+            margin-right: 0.5em;
+        }
+        .form-check-label {
+            font-size: 1.2em;
+        }
+        .btn-primary {
+            background-color: #007bff;
+            border: none;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+        .result {
+            font-size: 1.2em;
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #ffffff;
+        }
+        h1 {
+            color: #007bff;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        h3 {
+            color: #007bff;
+        }
+        .alert {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center">Pagamento de FARM</h1>
+
+        <form id="paymentForm" class="my-4">
+            <div class="mb-3">
+                <label for="total_pasta" class="form-label">Total de Pasta:</label>
+                <input type="number" step="0.01" class="form-control" id="total_pasta" name="total_pasta">
+            </div>
+            <div class="mb-3">
+                <label for="total_venda" class="form-label">Total de Venda (caso VendaGringo):</label>
+                <input type="number" step="0.01" class="form-control" id="total_venda" name="total_venda" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Opções:</label>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="farm" name="options[]" value="farm">
+                    <label class="form-check-label" for="farm">Farm</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="venda_gringo" name="options[]" value="vendaGringo">
+                    <label class="form-check-label" for="venda_gringo">VendaGringo</label>
+                </div>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Percentual de Pagamento:</label>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" id="percent_25" name="percent_pagamento" value="25" checked>
+                    <label class="form-check-label" for="percent_25">Morador/Avião (25%)</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" id="percent_30" name="percent_pagamento" value="30">
+                    <label class="form-check-label" for="percent_30">Membro (30%)</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" id="percent_35" name="percent_pagamento" value="35">
+                    <label class="form-check-label" for="percent_35">Gerente (35%)</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" id="percent_40" name="percent_pagamento" value="40">
+                    <label class="form-check-label" for="percent_40">Líder (40%)</label>
+                </div>
+            </div>
+            <button type="button" class="btn btn-primary w-100" onclick="calcular()">Calcular</button>
+        </form>
+
+        <div id="result" class="result" style="display: none;"></div>
+        <div id="error" class="alert alert-danger" style="display: none;"></div>
+    </div>
+
+    <script>
+        function formatCurrency(value) {
+            return `R$ ${value.toFixed(2).replace('.', ',').replace(/\d(?=(\d{3})+\,)/g, '$&.')}`;
+        }
+
+        function calcular() {
+            // Variáveis fixas
+            const QBase = 30;
+            const DSVenda = 600;
+            const PercentLavagem = 0.25;
+            const Coca = 15;
+
+            // Obter valores do formulário
+            const totalPasta = parseFloat(document.getElementById('total_pasta').value) || 0;
+            const totalVenda = parseFloat(document.getElementById('total_venda').value);
+            const percentPagamento = parseFloat(document.querySelector('input[name="percent_pagamento"]:checked').value);
+            const options = Array.from(document.querySelectorAll('input[name="options[]"]:checked')).map(cb => cb.value);
+
+            // Referências para elementos de resultado e erro
+            const errorElement = document.getElementById('error');
+            const resultElement = document.getElementById('result');
+
+            // Limpar resultados anteriores
+            resultElement.innerHTML = '';
+            errorElement.style.display = 'none';
+            resultElement.style.display = 'none';
+
+            // Validar campos
+            if (!options.includes('vendaGringo') && (isNaN(totalPasta) || totalPasta <= 0)) {
+                errorElement.innerText = 'Por favor, insira um valor válido para Total de Pasta se Farm estiver selecionado.';
+                errorElement.style.display = 'block';
+                return;
+            }
+
+            if (options.length === 0) {
+                errorElement.innerText = 'Por favor, selecione pelo menos uma opção.';
+                errorElement.style.display = 'block';
+                return;
+            }
+
+            if (options.includes('vendaGringo') && isNaN(totalVenda)) {
+                errorElement.innerText = 'Por favor, preencha o Total de Venda se VendaGringo estiver selecionado.';
+                errorElement.style.display = 'block';
+                return;
+            }
+
+            // Inicializar totais e detalhes do cálculo
+            let totalPaymentMember = 0;
+            let totalPaymentFac = 0;
+            let calculationDetails = "";
+
+            // Cálculo para Farm
+            if (options.includes('farm') && totalPasta > 0) {
+                let baseCalcFarm = (totalPasta / QBase) * Coca * DSVenda;
+                let lavagemCalcFarm = baseCalcFarm * PercentLavagem;
+                baseCalcFarm -= lavagemCalcFarm;
+                let paymentMemberFarm = baseCalcFarm * (percentPagamento / 100);
+                let paymentFacFarm = baseCalcFarm - paymentMemberFarm;
+
+                calculationDetails += `
+                    <h3>Cálculo para Farm:</h3>
+                    <p>(${totalPasta} / ${QBase}) * ${formatCurrency(Coca)} * ${formatCurrency(DSVenda)} = ${formatCurrency(baseCalcFarm + lavagemCalcFarm)}</p>
+                    <p>Diminuindo custo de Lavagem (${PercentLavagem * 100}%): -${formatCurrency(lavagemCalcFarm)}</p>
+                    <p>Pagamento ao Membro (${percentPagamento}%): ${formatCurrency(paymentMemberFarm)}</p>
+                    <p>Pagamento FAC: ${formatCurrency(paymentFacFarm)}</p>
+                `;
+
+                totalPaymentMember += paymentMemberFarm;
+                totalPaymentFac += paymentFacFarm;
+            }
+
+            // Cálculo para VendaGringo
+            if (options.includes('vendaGringo') && totalVenda > 0) {
+                let baseCalcGringo = totalVenda * DSVenda;
+                let lavagemCalcGringo = baseCalcGringo * PercentLavagem;
+                baseCalcGringo -= lavagemCalcGringo;
+                let paymentMemberGringo = baseCalcGringo * (percentPagamento / 100);
+                let paymentFacGringo = baseCalcGringo - paymentMemberGringo;
+
+                calculationDetails += `
+                    <h3>Cálculo para VendaGringo:</h3>
+                    <p>${formatCurrency(totalVenda)} * ${formatCurrency(DSVenda)} = ${formatCurrency(baseCalcGringo + lavagemCalcGringo)}</p>
+                    <p>Diminuindo custo de Lavagem (${PercentLavagem * 100}%): -${formatCurrency(lavagemCalcGringo)}</p>
+                    <p>Pagamento ao Membro (${percentPagamento}%): ${formatCurrency(paymentMemberGringo)}</p>
+                    <p>Pagamento FAC: ${formatCurrency(paymentFacGringo)}</p>
+                `;
+
+                totalPaymentMember += paymentMemberGringo;
+                totalPaymentFac += paymentFacGringo;
+            }
+
+            // Mostrar resultados
+            resultElement.innerHTML = `
+                <h3>Resultado Total:</h3>
+                <p id="total_payment_member">Pagamento ao Membro Total: ${formatCurrency(totalPaymentMember)}</p>
+                <p id="total_payment_fac">Pagamento FAC Total: ${formatCurrency(totalPaymentFac)}</p>
+                ${calculationDetails}
+            `;
+            resultElement.style.display = 'block';
+        }
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
