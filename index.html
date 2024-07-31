@@ -13,8 +13,9 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh; /* Alterado de height para min-height para melhor responsividade */
             margin: 0;
+            padding: 10px; /* Adicionado padding para não colar os elementos na borda da tela */
         }
         .container {
             max-width: 600px;
@@ -23,6 +24,7 @@
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Sombra para destaque */
             margin: 20px; /* Margem para evitar que encoste nas bordas da tela */
+            text-align: center; /* Centralizar conteúdo */
         }
         .form-check-input {
             width: 2.5em;
@@ -209,6 +211,9 @@
                 ${calculationDetails}
             `;
             resultElement.style.display = 'block';
+
+            // Scroll suave para o resultado
+            resultElement.scrollIntoView({ behavior: 'smooth' });
         }
     </script>
 
