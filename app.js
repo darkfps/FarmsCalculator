@@ -2,19 +2,19 @@ const express = require('express');
 const app = express();
 const port = 3000;
 
-// Middleware para analisar dados de formulários
+
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// Middleware para servir arquivos estáticos
+
 app.use(express.static('public'));
 
-// Rota principal
+
 app.get('/', (req, res) => {
     res.sendFile(__dirname + '/public/index.html');
 });
 
-// Rota para calcular os resultados
+
 app.post('/calcular', (req, res) => {
     const { total_pasta, total_venda, percent_pagamento, options } = req.body;
 
@@ -110,7 +110,7 @@ app.post('/calcular', (req, res) => {
     `);
 });
 
-// Iniciar o servidor
+
 app.listen(port, () => {
-    console.log(`Servidor rodando em http://localhost:${port}`);
+    console.log(`Servidor calculando tudo#noiados http://localhost:${port}`);
 });
