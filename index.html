@@ -26,11 +26,22 @@
             margin: 20px; /* Margem para evitar que encoste nas bordas da tela */
             text-align: center; /* Centralizar conteúdo */
         }
+        .form-check-inline {
+            display: flex;
+            justify-content: center; /* Centralizar horizontalmente */
+            align-items: center; /* Centralizar verticalmente */
+            margin-bottom: 5px; /* Espaçamento abaixo do grupo de checkboxes */
+        }
+        .form-check-inline .form-check {
+            margin-right: 0; /* Remover margem direita para centralizar melhor */
+            margin-bottom: 0; /* Remover margem inferior para alinhamento vertical */
+        }
         .form-check {
             display: flex;
-            flex-direction: column; /* Dispor checkbox e label verticalmente */
+            justify-content: center;
+           
             align-items: center; /* Centralizar o checkbox e o texto */
-            margin-bottom: 10px; /* Espaçamento entre checkboxes */
+            margin: 0 10px; /* Margem lateral para espaçamento entre os checkboxes */
         }
         .form-check-input {
             width: 2.5em;
@@ -39,6 +50,7 @@
         }
         .form-check-label {
             font-size: 1.2em;
+            text-align: center; /* Centralizar o texto */
         }
         .btn-primary {
             background-color: #007bff;
@@ -55,6 +67,16 @@
             border-radius: 5px;
             background-color: #ffffff;
         }
+
+        #total_payment_member {
+            font-size: 1.5em;
+            color: #28a745; /* Cor verde para destaque */
+            font-weight: bold; /* Negrito para maior destaque */
+            margin-bottom: 15px; /* Espaçamento abaixo do resultado */
+        }
+
+        
+
         h1 {
             color: #007bff;
             margin-bottom: 20px;
@@ -78,18 +100,20 @@
                 <input type="number" step="0.01" class="form-control" id="total_pasta" name="total_pasta">
             </div>
             <div class="mb-3">
-                <label for="total_venda" class="form-label">Total de Venda (caso VendaGringo):</label>
+                <label for="total_venda" class="form-label">Total(VendaGringo):</label>
                 <input type="number" step="0.01" class="form-control" id="total_venda" name="total_venda" required>
             </div>
             <div class="mb-3">
                 <label class="form-label">Opções:</label>
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="farm" name="options[]" value="farm">
-                    <label class="form-check-label" for="farm">Farm</label>
-                </div>
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="venda_gringo" name="options[]" value="vendaGringo">
-                    <label class="form-check-label" for="venda_gringo">VendaGringo</label>
+                <div class="form-check-inline">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="farm" name="options[]" value="farm">
+                        <label class="form-check-label" for="farm">Farm</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="venda_gringo" name="options[]" value="vendaGringo">
+                        <label class="form-check-label" for="venda_gringo">VendaGringo</label>
+                    </div>
                 </div>
             </div>
             <div class="mb-3">
@@ -99,16 +123,16 @@
                     <label class="form-check-label" for="percent_25">Morador/Avião (25%)</label>
                 </div>
                 <div class="form-check">
-                    <input class="form-check-input" type="radio" id="percent_30" name="percent_pagamento" value="30">
-                    <label class="form-check-label" for="percent_30">Membro (30%)</label>
+                    <input class="form-check-input" type="radio" id="percent_30" name="percent_pagamento" value="35">
+                    <label class="form-check-label" for="percent_30">Membro (35%)</label>
                 </div>
                 <div class="form-check">
-                    <input class="form-check-input" type="radio" id="percent_35" name="percent_pagamento" value="35">
-                    <label class="form-check-label" for="percent_35">Gerente (35%)</label>
+                    <input class="form-check-input" type="radio" id="percent_35" name="percent_pagamento" value="40">
+                    <label class="form-check-label" for="percent_35">Gerente (40%)</label>
                 </div>
                 <div class="form-check">
-                    <input class="form-check-input" type="radio" id="percent_40" name="percent_pagamento" value="40">
-                    <label class="form-check-label" for="percent_40">Líder (40%)</label>
+                    <input class="form-check-input" type="radio" id="percent_40" name="percent_pagamento" value="45">
+                    <label class="form-check-label" for="percent_40">Líder (45%)</label>
                 </div>
             </div>
             <button type="button" class="btn btn-primary w-100" onclick="calcular()">Calcular</button>
@@ -178,11 +202,11 @@
                 let paymentFacFarm = baseCalcFarm - paymentMemberFarm;
 
                 calculationDetails += `
-                    <h3>Cálculo para Farm:</h3>
+                    <h3>Justificando Cálculo para Farm:</h3>
                     <p>(${totalPasta} / ${QBase}) * ${formatCurrency(Coca)} * ${formatCurrency(DSVenda)} = ${formatCurrency(baseCalcFarm + lavagemCalcFarm)}</p>
                     <p>Diminuindo custo de Lavagem (${PercentLavagem * 100}%): -${formatCurrency(lavagemCalcFarm)}</p>
                     <p>Pagamento ao Membro (${percentPagamento}%): ${formatCurrency(paymentMemberFarm)}</p>
-                    <p>Pagamento FAC: ${formatCurrency(paymentFacFarm)}</p>
+                    <p>Depositar na FAC: ${formatCurrency(paymentFacFarm)}</p>
                 `;
 
                 totalPaymentMember += paymentMemberFarm;
@@ -198,11 +222,11 @@
                 let paymentFacGringo = baseCalcGringo - paymentMemberGringo;
 
                 calculationDetails += `
-                    <h3>Cálculo para VendaGringo:</h3>
+                    <h3>Justificando Cálculo para VendaGringo:</h3>
                     <p>${formatCurrency(totalVenda)} * ${formatCurrency(DSVenda)} = ${formatCurrency(baseCalcGringo + lavagemCalcGringo)}</p>
                     <p>Diminuindo custo de Lavagem (${PercentLavagem * 100}%): -${formatCurrency(lavagemCalcGringo)}</p>
                     <p>Pagamento ao Membro (${percentPagamento}%): ${formatCurrency(paymentMemberGringo)}</p>
-                    <p>Pagamento FAC: ${formatCurrency(paymentFacGringo)}</p>
+                    <p>Depositar na FAC: ${formatCurrency(paymentFacGringo)}</p>
                 `;
 
                 totalPaymentMember += paymentMemberGringo;
@@ -212,8 +236,9 @@
             // Mostrar resultados
             resultElement.innerHTML = `
                 <h3>Resultado Total:</h3>
-                <p id="total_payment_member">Pagamento ao Membro Total: ${formatCurrency(totalPaymentMember)}</p>
-                <p id="total_payment_fac">Pagamento FAC Total: ${formatCurrency(totalPaymentFac)}</p>
+                <p id="total_payment_member">Pagar ao Membro: ${formatCurrency(totalPaymentMember)}</p>
+                <p id="total_payment_fac">Depositar na FAC: ${formatCurrency(totalPaymentFac)}</p>
+                <hr>
                 ${calculationDetails}
             `;
             resultElement.style.display = 'block';
