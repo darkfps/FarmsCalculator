@@ -75,8 +75,6 @@
             margin-bottom: 15px; 
         }
 
-        
-
         h1 {
             color: #007bff;
             margin-bottom: 20px;
@@ -100,7 +98,7 @@
                 <input type="number" step="0.01" class="form-control" id="total_pasta" name="total_pasta">
             </div>
             <div class="mb-3">
-                <label for="total_venda" class="form-label">Total(VendaGringo):</label>
+                <label for="total_venda" class="form-label">Total (VendaGringo):</label>
                 <input type="number" step="0.01" class="form-control" id="total_venda" name="total_venda" required>
             </div>
             <div class="mb-3">
@@ -123,16 +121,20 @@
                     <label class="form-check-label" for="percent_25">Morador/Avião (25%)</label>
                 </div>
                 <div class="form-check">
-                    <input class="form-check-input" type="radio" id="percent_30" name="percent_pagamento" value="35">
-                    <label class="form-check-label" for="percent_30">Membro (35%)</label>
+                    <input class="form-check-input" type="radio" id="percent_30" name="percent_pagamento" value="30">
+                    <label class="form-check-label" for="percent_30">Membro (30%)</label>
                 </div>
                 <div class="form-check">
-                    <input class="form-check-input" type="radio" id="percent_35" name="percent_pagamento" value="40">
-                    <label class="form-check-label" for="percent_35">Gerente (40%)</label>
+                    <input class="form-check-input" type="radio" id="percent_35" name="percent_pagamento" value="35">
+                    <label class="form-check-label" for="percent_35">Gerente (35%)</label>
                 </div>
                 <div class="form-check">
-                    <input class="form-check-input" type="radio" id="percent_40" name="percent_pagamento" value="45">
-                    <label class="form-check-label" for="percent_40">Líder (45%)</label>
+                    <input class="form-check-input" type="radio" id="percent_40" name="percent_pagamento" value="40">
+                    <label class="form-check-label" for="percent_40">Líder (40%)</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" id="percent_45" name="percent_pagamento" value="45">
+                    <label class="form-check-label" for="percent_45">Diretor (45%)</label>
                 </div>
             </div>
             <button type="button" class="btn btn-primary w-100" onclick="calcular()">Calcular</button>
@@ -148,29 +150,33 @@
         }
 
         function calcular() {
-            
             const QBase = 30;
             const DSVenda = 600;
             const PercentLavagem = 0.25;
             const Coca = 15;
 
-            
-            const totalPasta = parseFloat(document.getElementById('total_pasta').value) || 0;
-            const totalVenda = parseFloat(document.getElementById('total_venda').value);
+            const totalPasta = document.getElementById('total_pasta').value;
+            const totalVenda = document.getElementById('total_venda').value;
             const percentPagamento = parseFloat(document.querySelector('input[name="percent_pagamento"]:checked').value);
             const options = Array.from(document.querySelectorAll('input[name="options[]"]:checked')).map(cb => cb.value);
 
-            
             const errorElement = document.getElementById('error');
             const resultElement = document.getElementById('result');
 
-            
             resultElement.innerHTML = '';
             errorElement.style.display = 'none';
             resultElement.style.display = 'none';
 
-            
-            if (!options.includes('vendaGringo') && (isNaN(totalPasta) || totalPasta <= 0)) {
+            if (totalPasta.length > 9 || totalVenda.length > 9) {
+                errorElement.innerText = 'Os valores para Total de Pasta e Total de Venda não podem ter mais de 9 dígitos.';
+                errorElement.style.display = 'block';
+                return;
+            }
+
+            const parsedTotalPasta = parseFloat(totalPasta) || 0;
+            const parsedTotalVenda = parseFloat(totalVenda);
+
+            if (!options.includes('vendaGringo') && (isNaN(parsedTotalPasta) || parsedTotalPasta <= 0)) {
                 errorElement.innerText = 'Por favor, insira um valor válido para Total de Pasta se Farm estiver selecionado.';
                 errorElement.style.display = 'block';
                 return;
@@ -182,20 +188,18 @@
                 return;
             }
 
-            if (options.includes('vendaGringo') && isNaN(totalVenda)) {
+            if (options.includes('vendaGringo') && isNaN(parsedTotalVenda)) {
                 errorElement.innerText = 'Por favor, preencha o Total de Venda se VendaGringo estiver selecionado.';
                 errorElement.style.display = 'block';
                 return;
             }
 
-            
             let totalPaymentMember = 0;
             let totalPaymentFac = 0;
             let calculationDetails = "";
 
-            
-            if (options.includes('farm') && totalPasta > 0) {
-                let baseCalcFarm = (totalPasta / QBase) * Coca * DSVenda;
+            if (options.includes('farm') && parsedTotalPasta > 0) {
+                let baseCalcFarm = (parsedTotalPasta / QBase) * Coca * DSVenda;
                 let lavagemCalcFarm = baseCalcFarm * PercentLavagem;
                 baseCalcFarm -= lavagemCalcFarm;
                 let paymentMemberFarm = baseCalcFarm * (percentPagamento / 100);
@@ -203,7 +207,7 @@
 
                 calculationDetails += `
                     <h3>Justificando Cálculo para Farm:</h3>
-                    <p>(${totalPasta} / ${QBase}) * ${formatCurrency(Coca)} * ${formatCurrency(DSVenda)} = ${formatCurrency(baseCalcFarm + lavagemCalcFarm)}</p>
+                    <p>(${parsedTotalPasta} / ${QBase}) * ${formatCurrency(Coca)} * ${formatCurrency(DSVenda)} = ${formatCurrency(baseCalcFarm + lavagemCalcFarm)}</p>
                     <p>Diminuindo custo de Lavagem (${PercentLavagem * 100}%): -${formatCurrency(lavagemCalcFarm)}</p>
                     <p>Pagamento ao Membro (${percentPagamento}%): ${formatCurrency(paymentMemberFarm)}</p>
                     <p>Depositar na FAC: ${formatCurrency(paymentFacFarm)}</p>
@@ -213,9 +217,8 @@
                 totalPaymentFac += paymentFacFarm;
             }
 
-            
-            if (options.includes('vendaGringo') && totalVenda > 0) {
-                let baseCalcGringo = totalVenda * DSVenda;
+            if (options.includes('vendaGringo') && parsedTotalVenda > 0) {
+                let baseCalcGringo = parsedTotalVenda * DSVenda;
                 let lavagemCalcGringo = baseCalcGringo * PercentLavagem;
                 baseCalcGringo -= lavagemCalcGringo;
                 let paymentMemberGringo = baseCalcGringo * (percentPagamento / 100);
@@ -223,7 +226,7 @@
 
                 calculationDetails += `
                     <h3>Justificando Cálculo para VendaGringo:</h3>
-                    <p>${formatCurrency(totalVenda)} * ${formatCurrency(DSVenda)} = ${formatCurrency(baseCalcGringo + lavagemCalcGringo)}</p>
+                    <p>${formatCurrency(parsedTotalVenda)} * ${formatCurrency(DSVenda)} = ${formatCurrency(baseCalcGringo + lavagemCalcGringo)}</p>
                     <p>Diminuindo custo de Lavagem (${PercentLavagem * 100}%): -${formatCurrency(lavagemCalcGringo)}</p>
                     <p>Pagamento ao Membro (${percentPagamento}%): ${formatCurrency(paymentMemberGringo)}</p>
                     <p>Depositar na FAC: ${formatCurrency(paymentFacGringo)}</p>
@@ -233,7 +236,6 @@
                 totalPaymentFac += paymentFacGringo;
             }
 
-            
             resultElement.innerHTML = `
                 <h3>Resultado Total:</h3>
                 <p id="total_payment_member">Pagar ao Membro: ${formatCurrency(totalPaymentMember)}</p>
