@@ -25,9 +25,9 @@ app.post('/calcular', (req, res) => {
 
     const percentages = {
         "25": 0.25,
-        "30": 0.30,
         "35": 0.35,
-        "40": 0.40
+        "40": 0.40,
+        "45": 0.45
     };
 
     let total_payment_member = 0;
@@ -54,7 +54,7 @@ app.post('/calcular', (req, res) => {
         total_payment_member += payment_member_farm;
         total_payment_fac += payment_fac_farm;
     }
-
+ 
     if (options.includes('vendaGringo') && total_venda > 0) {
         let base_calc_gringo = total_venda * DSVenda;
         let lavagem_calc_gringo = base_calc_gringo * PercentLavagem;
